@@ -14,4 +14,5 @@ router.get("/", auth(Role.CUSTOMER, Role.TECHNICIAN), bookingController.getMyBoo
 router.get("/:id", auth(Role.CUSTOMER, Role.ADMIN), bookingController.getSingleBooking);
 router.patch("/:id/cancel", auth(Role.CUSTOMER),validateRequest(cancelBookingSchema), bookingController.cancelBooking);
 
+
 export const bookingRouter = router
