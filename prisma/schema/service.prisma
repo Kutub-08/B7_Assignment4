@@ -1,0 +1,23 @@
+model Service {
+    id           String  @id @default(uuid())
+    technicianId String
+    categoryId   String
+    title        String
+    description  String
+    price        Decimal @db.Decimal(10, 2)
+    durationMins Int     @default(60)
+    isActive     Boolean @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    technician TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+    category   Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+    bookings   Booking[]
+
+    @@index([technicianId])
+    @@index([categoryId])
+    @@index([price])
+    @@index([isActive])
+    @@map("services")
+}

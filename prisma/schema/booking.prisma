@@ -1,10 +1,31 @@
-model AiSearchLog {
-  id            String    @id @default(uuid()) @db.Uuid
-  userId        String?   @map("user_id") @db.Uuid
-  user          User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  queryText     String    @map("query_text")
-  parsedFilters Json      @map("parsed_filters") @db.JsonB
-  createdAt     DateTime  @default(now()) @map("created_at")
+model Booking {
+    id           String        @id @default(uuid())
+    customerId   String
+    technicianId String
+    serviceId    String
+    status       BookingStatus @default(REQUESTED)
 
-  @@map("ai_search_logs")
+    scheduledAt    DateTime
+    address        String
+    notes          String?
+    priceAtBooking Decimal   @db.Decimal(10, 2)
+    cancelledAt    DateTime?
+    cancelReason   String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    customer   User              @relation("CustomerBookings", fields: [customerId], references: [id], onDelete: Cascade)
+    technician TechnicianProfile @relation("TechnicianBookings", fields: [technicianId], references: [id], onDelete: Cascade)
+    service    Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+    payment Payment?
+    review  Review?
+
+    @@index([customerId])
+    @@index([technicianId])
+    @@index([serviceId])
+    @@index([status])
+    @@index([scheduledAt])
+    @@map("bookings")
 }
