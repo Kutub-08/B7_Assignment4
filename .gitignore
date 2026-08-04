@@ -5,3 +5,4 @@ prisma/migrations
 .vercel
 dist
 .env.local
+.vercel
