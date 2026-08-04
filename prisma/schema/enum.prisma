@@ -1,17 +1,41 @@
-enum UserRole {
-  TENANT
-  LANDLORD
-  ADMIN
+enum Role {
+    CUSTOMER
+    TECHNICIAN
+    ADMIN
 }
 
-enum ListingStatus {
-  AVAILABLE
-  RENTED
-  INACTIVE
+enum UserStatus {
+    ACTIVE
+    BANNED
 }
 
-enum InquiryStatus {
-  PENDING
-  RESPONDED
-  CLOSED
+enum BookingStatus {
+    REQUESTED
+    ACCEPTED
+    DECLINED
+    PAID
+    IN_PROGRESS
+    COMPLETED
+    CANCELLED
+}
+
+enum PaymentProvider {
+    STRIPE
+}
+
+enum PaymentStatus {
+    PENDING
+    COMPLETED
+    FAILED
+    REFUNDED
+}
+
+enum DayOfWeek {
+    MONDAY
+    TUESDAY
+    WEDNESDAY
+    THURSDAY
+    FRIDAY
+    SATURDAY
+    SUNDAY
 }
