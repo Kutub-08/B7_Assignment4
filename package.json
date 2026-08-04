@@ -7,7 +7,7 @@
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
     "build": "prisma generate && tsup",
-    "stripe:webhook": "stripe listen --forward-to http://localhost:5000/api/payment/confirm",
+    "stripe:webhook": "stripe listen --forward-to https://b7-assignment4.vercel.app/api/payment/confirm",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

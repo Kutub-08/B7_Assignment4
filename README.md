@@ -1,10 +1,12 @@
-# FixItNow 🔧 — Backend API
+# Home Services Marketplace Backend — Batch 7 Assignment 4
 
-A home services marketplace backend built with **Node.js, Express, TypeScript, PostgreSQL, and Prisma**. Customers can browse services, book technicians, pay via Stripe, and leave reviews. Technicians manage their profiles, availability, and bookings. Admins moderate users and categories.
+A REST API backend for a home services marketplace built with **Node.js, Express 5, TypeScript, PostgreSQL, and Prisma ORM v7**. Customers can browse services and technicians, book appointments, pay via Stripe, and leave reviews. Technicians manage their profiles, availability, and services. Admins moderate categories, users, and bookings.
 
 ---
 
-**Live API:** https://fixitnow-two.vercel.app
+**Live API:** https://b7-assignment4.vercel.app/
+
+**Author:** [Kutub Uddin](mailto:kutubuddin2003251251@gmail.com)
 
 ---
 
@@ -14,44 +16,77 @@ A home services marketplace backend built with **Node.js, Express, TypeScript, P
 |---|---|
 | Node.js + Express 5 | REST API framework |
 | TypeScript | Type safety |
-| PostgreSQL (Prisma Postgres) | Database |
+| PostgreSQL | Database |
 | Prisma ORM v7 (`prisma-client` generator + driver adapters) | Database access layer |
 | Zod | Request validation |
 | JWT (`jsonwebtoken`) | Authentication |
 | bcryptjs | Password hashing |
-| Stripe | Payment processing (BDT) |
+| Stripe | Payment processing |
 | tsup | Production build/bundling |
 | Vercel | Deployment |
 
 ---
 
-## 📁 Project Structure
+## 📁 Folder Structure
 
 ```
-prisma/
-  schema.prisma          # Data models
-  seed.ts                 # Database seed script
-src/
-  modules/                 # auth, technician, admin, service, booking, payment, review, category
-  middlewares/            # auth guard, validateRequest, globalHandler
-  schemas/                # Zod validation schemas
-  utils/                  # AppError, sendResponse, easyController
-  lib/prisma.ts            # Prisma client instance (driver adapter)
-  server.ts
-prisma.config.ts          # Prisma CLI config (v7 — connection string, seed command)
-tsup.config.ts            # Build config
-vercel.json                # Deployment config
+├── prisma/
+│   ├── schema/                    # Multi-file Prisma schema
+│   │   ├── schema.prisma          # Generator + datasource config
+│   │   ├── enum.prisma            # Role, UserStatus, BookingStatus, PaymentStatus, etc.
+│   │   ├── user.prisma            # User model
+│   │   ├── technicianProfile.prisma
+│   │   ├── technicianAvailability.prisma
+│   │   ├── service.prisma
+│   │   ├── category.prisma
+│   │   ├── booking.prisma
+│   │   ├── payment.prisma
+│   │   └── review.prisma
+│   └── migrations/
+├── src/
+│   ├── app.ts                     # Express app, middleware, route mounting
+│   ├── server.ts                  # Entry point
+│   ├── config/index.ts            # Environment variable config
+│   ├── lib/
+│   │   ├── prisma.ts              # Prisma client (driver adapter)
+│   │   └── stripe.ts              # Stripe instance
+│   ├── middleware/
+│   │   ├── auth.ts                # Role-based auth guard
+│   │   ├── validateRequest.ts     # Zod validation middleware
+│   │   ├── globalErrorHandler.ts  # Central error handler
+│   │   └── routeNotFound.ts       # 404 handler
+│   ├── schema/index.ts            # All Zod validation schemas
+│   ├── utils/
+│   │   ├── AppError.ts
+│   │   ├── sendResponse.ts
+│   │   ├── easyController.ts
+│   │   └── jwtutils.ts
+│   └── models/                    # Feature modules (controller / service / route)
+│       ├── auth/
+│       ├── technician/
+│       ├── service/
+│       ├── category/
+│       ├── booking/
+│       ├── payment/
+│       ├── review/
+│       └── admin/
+├── generated/prisma/              # Generated Prisma client
+├── dist/                          # Production build output
+├── prisma.config.ts               # Prisma CLI config (v7)
+├── tsup.config.ts
+├── vercel.json
+└── package.json
 ```
 
 ---
 
-## ⚙️ Getting Started
+## ⚙️ Getting Started (Local Setup)
 
-### 1. Clone and install
+### 1. Clone & install
 
 ```bash
-git clone https://github.com/MasadRayan/FixItNow-Backend.git
-cd Batch-7-assignment-4
+git clone <your-repo-url>
+cd b7Assignment4
 npm install
 ```
 
@@ -60,19 +95,19 @@ npm install
 Create a `.env` file in the project root:
 
 ```env
-DATABASE_URL="Your Database url"
+DATABASE_URL="Your PostgreSQL database URL"
 PORT=3000
-APP_URL="https://fixitnow-two.vercel.app"
-BCRYPT_SALT_ROUNDS="Your password salt round"
-JWT_ACCESS_SECRET="Your jwt access secret"
-JWT_REFRESH_SECRET="Your jwt refresh secret"
-JWT_ACCESS_EXPIRES_IN= "Accesstoken expires in Days"
-JWT_REFRESH_EXPIRES_IN= "Refreshtoken expires in Days"
+APP_URL="https://b7-assignment4.vercel.app"
+BCRYPT_SALT_ROUNDS="Your password salt rounds"
+JWT_ACCESS_SECRET="Your JWT access secret"
+JWT_REFRESH_SECRET="Your JWT refresh secret"
+JWT_ACCESS_EXPIRES_IN="Access token expiry (e.g. 7d)"
+JWT_REFRESH_EXPIRES_IN="Refresh token expiry (e.g. 30d)"
 STRIPE_SECRET_KEY="Your Stripe secret key"
-STRIPE_WEBHOOK_SECRET="Your Stripe Webhook secret"
+STRIPE_WEBHOOK_SECRET="Your Stripe webhook secret"
 ```
 
-### 3. Generate the Prisma Client
+### 3. Generate the Prisma client
 
 ```bash
 npx prisma generate
@@ -81,34 +116,18 @@ npx prisma generate
 ### 4. Run migrations
 
 ```bash
-npx prisma migrate dev --name init
+npx prisma migrate dev
 ```
 
-### 5. Seed the database
-
-Seeding is **not automatic** in Prisma 7 — run it explicitly:
-
-```bash
-npx prisma db seed
-```
-
-This creates:
-- 1 admin account
-- 5 starter categories (Plumbing, Electrical, Cleaning, Painting, Carpentry)
-- 2 technicians (verified, with services)
-- 2 customers
-- 3 sample bookings (one at each lifecycle stage)
-- 1 completed payment + 1 review
-
-### 6. Run the dev server
+### 5. Run the dev server
 
 ```bash
 npm run dev
 ```
 
-Server runs at `http://localhost:3000` (or whatever port you configure).
+Server runs at `http://localhost:3000`.
 
-### 7. Stripe webhook (local testing)
+### 6. Stripe webhook (local testing)
 
 In a separate terminal:
 
@@ -120,29 +139,38 @@ This forwards Stripe test events to your local `/api/payment/confirm` endpoint. 
 
 ---
 
-
 ## 👥 Roles & Permissions
 
 | Role | Capabilities |
 |---|---|
-| **Customer** | Browse services/technicians, book, pay, cancel (pre-`IN_PROGRESS`), review, view own bookings/payments |
+| **Customer** | Browse services/technicians, book, pay via Stripe, cancel, review, view own bookings/payments |
 | **Technician** | Manage profile & availability, create services, accept/decline/progress bookings, view own bookings |
-| **Admin** | Manage categories, view/ban users, view all bookings |
+| **Admin** | Manage categories, view all users/bookings, ban/unban users |
 
-Role is selected at registration (`CUSTOMER` or `TECHNICIAN` only — `ADMIN` cannot be self-registered; it's seeded).
+Role is selected at registration (`CUSTOMER` or `TECHNICIAN` only — `ADMIN` cannot self-register).
 
 ---
 
-## 📡 API Routes
+## 📡 API Endpoints
 
-### Auth
+All endpoints are prefixed with the live URL: `https://b7-assignment4.vercel.app`
+
+### Root
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| GET | `/` | Public | Welcome message & author info |
+
+### Auth (`/api/auth`)
+
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | POST | `/api/auth/register` | Public | Register as CUSTOMER or TECHNICIAN |
-| POST | `/api/auth/login` | Public | Login, returns JWT |
+| POST | `/api/auth/login` | Public | Login, returns JWT tokens |
 | GET | `/api/auth/me` | Authenticated | Get current user's profile |
 
-### Technician
+### Technician (`/api/technician`)
+
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | GET | `/api/technician/` | Public | List technicians (filter by skill, location, rating, category, search) |
@@ -150,44 +178,51 @@ Role is selected at registration (`CUSTOMER` or `TECHNICIAN` only — `ADMIN` ca
 | PATCH | `/api/technician/profile` | Technician | Update own profile |
 | PUT | `/api/technician/availability` | Technician | Replace weekly availability schedule |
 
-### Service
+### Service (`/api/services`)
+
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | POST | `/api/services/` | Technician | Create a new service |
 | GET | `/api/services/` | Public | List services (filter by category, location, rating, price, search) |
+| GET | `/api/services/:id` | Public | Single service detail |
 
-### Category
+### Category (`/api/category`)
+
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | GET | `/api/category/` | Public | List service categories |
 
-### Booking
+### Booking (`/api/bookings`)
+
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | POST | `/api/bookings/create` | Customer | Create a booking (status → `REQUESTED`) |
+| PATCH | `/api/bookings/status/:id` | Technician | Accept / decline / progress a booking |
 | GET | `/api/bookings` | Customer, Technician | List own bookings |
 | GET | `/api/bookings/:id` | Customer, Admin | Single booking detail |
-| PATCH | `/api/bookings/status/:id` | Technician | Accept / Decline / progress a booking |
-| PATCH | `/api/bookings/:id/cancel` | Customer | Cancel (only before `IN_PROGRESS`) |
+| PATCH | `/api/bookings/:id/cancel` | Customer | Cancel booking (only before `IN_PROGRESS`) |
 
-**Booking lifecycle:** `REQUESTED → ACCEPTED/DECLINED → PAID → IN_PROGRESS → COMPLETED` (or `CANCELLED` at any point before `IN_PROGRESS`)
+**Booking lifecycle:** `REQUESTED → ACCEPTED/DECLINED → PAID → IN_PROGRESS → COMPLETED` (or `CANCELLED` any time before `IN_PROGRESS`)
 
-### Payment (Stripe)
+### Payment — Stripe (`/api/payment`)
+
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| POST | `/api/payments/create` | Customer | Create a Stripe Checkout Session for an `ACCEPTED` booking |
-| POST | `/api/payment/confirm` | Stripe webhook | Confirms payment, flips booking to `PAID` |
-| GET | `/api/payments/` | Customer | Own payment history |
-| GET | `/api/payments/:id` | Customer | Single payment detail |
+| POST | `/api/payment/create` | Customer | Create a Stripe Checkout Session for an `ACCEPTED` booking |
+| POST | `/api/payment/confirm` | Stripe webhook | Confirm payment, flip booking to `PAID` |
+| GET | `/api/payment/` | Customer | Own payment history |
+| GET | `/api/payment/:id` | Customer | Single payment detail |
 
-Currency: **BDT**. Test with Stripe's card `4242 4242 4242 4242`, any future expiry, any CVC.
+Test with Stripe's test card `4242 4242 4242 4242`, any future expiry, any CVC.
 
-### Review
+### Review (`/api/review`)
+
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| POST | `/api/reviews/` | Customer | Review a `COMPLETED` booking (one per booking) |
+| POST | `/api/review/` | Customer | Review a `COMPLETED` booking (one per booking) |
 
-### Admin
+### Admin (`/api/admin`)
+
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | POST | `/api/admin/categories` | Admin | Create a category |
@@ -198,29 +233,18 @@ Currency: **BDT**. Test with Stripe's card `4242 4242 4242 4242`, any future exp
 
 ---
 
-## ✅ Mandatory Requirements Checklist
+## ✅ Error Response Format
 
-- [x] Structured error responses: `{ success, statusCode, message, errorDetails }` on every error
-- [x] Server-side validation on all `POST`/`PATCH`/`PUT` routes via Zod
-- [x] 20+ meaningful backend commits
-- [x] Working admin credentials (see above, via seed script)
-- [x] Stripe payment integration — real Checkout Sessions + webhook confirmation, no simulated payments
-- [x] API Documentation (Postman collection / Swagger) — [link here ](https://documenter.getpostman.com/view/49925275/2sBY4JxiYa)
+Every error returns a consistent structure:
 
----
-
-## 🧪 Testing
-
-All endpoints were tested manually via Postman. No frontend exists — this is a backend-only assignment. Key flows to test in order:
-
-1. Register a customer and a technician
-2. Technician creates a service under an existing category
-3. Customer creates a booking for that service
-4. Technician accepts the booking (`REQUESTED → ACCEPTED`)
-5. Customer creates a payment session, pays via the Stripe-hosted checkout link (open in browser, not Postman)
-6. Stripe webhook confirms payment (`ACCEPTED → PAID`)
-7. Technician progresses the booking (`PAID → IN_PROGRESS → COMPLETED`)
-8. Customer leaves a review
+```json
+{
+  "success": false,
+  "statusCode": 400,
+  "message": "Error message",
+  "errorDetails": {}
+}
+```
 
 ---
 
@@ -232,13 +256,11 @@ Deployed on **Vercel** using `tsup` to bundle to `dist/server.js`.
 npm run build   # runs `prisma generate && tsup`
 ```
 
-Environment variables must be set in Vercel's project dashboard (Settings → Environment Variables) — `.env` is not deployed. The Stripe webhook must be reconfigured to point at the production URL (`https://your-app.vercel.app/api/payment/confirm`) with its own webhook signing secret, either via a second `stripe listen` session or directly in the Stripe Dashboard's webhook settings.
-
-**Live API:** *add your deployed URL here*
+Set the same environment variables in Vercel's project dashboard (Settings → Environment Variables) — `.env` is not deployed. Reconfigure the Stripe webhook to point at `https://b7-assignment4.vercel.app/api/payment/confirm`.
 
 ---
 
-## 🔮 Known Limitations / Future Improvements
+## 🔮 Known Limitations
 
-- **No automatic refunds** — cancelling a `PAID` booking changes its status but does not trigger a Stripe refund; this would need a `stripe.refunds.create()` call added to the cancellation flow.
-- **Location matching is substring-based**, not geocoded — a technician's `location` field is matched against the booking `address` as a simple case-insensitive substring check, not real distance/radius filtering.
+- **No automatic refunds** — cancelling a `PAID` booking changes its status but does not trigger a Stripe refund.
+- **Location matching is substring-based** — not geocoded, no real distance/radius filtering.
