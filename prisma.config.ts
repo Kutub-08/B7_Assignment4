@@ -1,31 +1,13 @@
-model Booking {
-    id           String        @id @default(uuid())
-    customerId   String
-    technicianId String
-    serviceId    String
-    status       BookingStatus @default(REQUESTED)
 
-    scheduledAt    DateTime
-    address        String
-    notes          String?
-    priceAtBooking Decimal   @db.Decimal(10, 2)
-    cancelledAt    DateTime?
-    cancelReason   String?
+import "dotenv/config";
+import { defineConfig, env } from "prisma/config";
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    customer   User              @relation("CustomerBookings", fields: [customerId], references: [id], onDelete: Cascade)
-    technician TechnicianProfile @relation("TechnicianBookings", fields: [technicianId], references: [id], onDelete: Cascade)
-    service    Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-
-    payment Payment?
-    review  Review?
-
-    @@index([customerId])
-    @@index([technicianId])
-    @@index([serviceId])
-    @@index([status])
-    @@index([scheduledAt])
-    @@map("bookings")
-}
+export default defineConfig({
+  schema: "prisma/schema",
+  migrations: {
+    path: "prisma/migrations",
+  },
+  datasource: {
+    url: env("DATABASE_URL"),
+  },
+});
